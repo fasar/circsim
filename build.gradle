@@ -1,0 +1,177 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer
+
+buildscript {
+    ext {
+        kotlinVersion = '1.2.41'
+        springBootVersion = '2.1.4.RELEASE'
+    }
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('com.netflix.nebula:nebula-dependency-recommender:4.3.0')
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
+    }
+
+}
+
+
+apply plugin: 'idea'
+
+
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+ext {
+    dependenciesFile = file('./dependencies.props')
+}
+
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'nebula.dependency-recommender'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'fsart.circsim'
+    version = '1.0.0-SNAPSHOT' // CIRCSIM-VERSION
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencyRecommendations {
+        propertiesFile file: project.dependenciesFile
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom('org.springframework.boot:spring-boot-dependencies:' + springBootVersion)
+        }
+    }
+
+    configurations {
+        developmentOnly
+        runtimeClasspath {
+            extendsFrom developmentOnly
+        }
+    }
+
+
+}
+
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('dd/MM/yyyy HH:mm:ss')
+    return formattedDate
+}
+
+
+def distFolder() {
+    return 'dist/' + project.version.toString()
+}
+
+subprojects {
+
+//    apply plugin: 'kotlin'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+//    compileKotlin {
+//        kotlinOptions.jvmTarget = "1.8"
+//    }
+//    compileTestKotlin {
+//        kotlinOptions.jvmTarget = "1.8"
+//    }
+
+    dependencies {
+//        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
+//        compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+        compile("javax.inject:javax.inject")
+        compile('org.springframework.boot:spring-boot-dependencies')
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+        testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
+    }
+
+    jar {
+        manifest {
+            attributes(
+                "Manifest_AppVersion": version,
+                "Manifest_Build_Date": getDate(),
+                "Manifest_Build_RevVersion": getGitHash())
+        }
+    }
+
+    // Configuration for maven-publish
+    apply plugin: 'maven-publish'
+    task sourcesJar(type: Jar) {
+        classifier 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives sourcesJar
+    }
+
+}
+
+
+project(':ccs-core') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'java'
+    apply plugin: 'application'
+
+    dependencies {
+        compile("org.springframework.boot:spring-boot-starter")
+        compile("javax.persistence:javax.persistence-api")
+        compile("ch.qos.logback:logback-classic")
+        compile("com.fasterxml.jackson.core:jackson-annotations")
+        compile("com.fasterxml.jackson.core:jackson-databind")
+        compile("org.apache.commons:commons-lang3")
+        compile("org.apache.commons:commons-csv")
+        compile("org.apache.commons:commons-compress")
+        compile("commons-io:commons-io")
+        compile("org.apache.commons:commons-text")
+        compile("com.github.mfornos:humanize-slim")
+        compile("io.vertx:vertx-core")
+        testCompile("com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider")
+        testCompile("junit:junit")
+        testCompile("org.hamcrest:hamcrest-all")
+        testCompile("io.vertx:vertx-unit")
+    }
+
+    shadowJar {
+        mainClassName = "fasar.circsim.App"
+
+        archiveName = "circsim.jar"
+
+        // Required for Spring
+        mergeServiceFiles()
+        append 'META-INF/spring.handlers'
+        append 'META-INF/spring.schemas'
+        append 'META-INF/spring.tooling'
+        transform(PropertiesFileTransformer) {
+            paths = ['META-INF/spring.factories']
+            mergeStrategy = "append"
+        }
+
+    }
+}

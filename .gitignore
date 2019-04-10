@@ -1,0 +1,64 @@
+# Java Runtime
+*.class
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### Gradle ###
+.gradle
+**/out/**
+dist-scms/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.vscode
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+### Eclipse ###
+**/.classpath
+**/.project
+**/.settings
+
+
+### Web Application ###
+app.web.client/build/**
+app.web.client/public/**
+app.web.client/node_modules/**
+app.web.client/managed_components/**
+app.web.client/tools/managed_components/**
+**/node_modules/**
+
+### Server Runtime Files/Dirs ###
+**/logs/**
+**/log/**
+databd*/**
+IMPORT/**
+EXPORT/**
+**.lock
+conf/**
+conf.*/**
+cassandra_data
+dist-scms
+*.log
+**/SIMULATOR*/**
+
+### Jar files
+**/*.jar
+

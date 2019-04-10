@@ -1,11 +1,8 @@
-import java.awt.*;
-import java.awt.event.*;
-
 public interface ImportExportDialog {
-    public enum Action { IMPORT, EXPORT };
+    void setDump(String dump);
 
-    public void setDump(String dump);
+    void execute();
 
-    public void execute();
+    enum Action {IMPORT, EXPORT}
 }
 

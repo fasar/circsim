@@ -1,10 +1,7 @@
-public class ImportExportDialogFactory
-{
+public class ImportExportDialogFactory {
     public static ImportExportDialog Create(CirSim f,
-	ImportExportDialog.Action type)
-    {
-	if (f.applet != null)
-	{
+                                            ImportExportDialog.Action type) {
+        if (f.applet != null) {
 /*
 	    try
 	    {
@@ -15,11 +12,9 @@ public class ImportExportDialogFactory
 		return new ImportExportClipboardDialog(f, type);
 	    }
 */
-		return new ImportExportClipboardDialog(f, type);
-	}
-	else
-	{
-	    return new ImportExportFileDialog(f, type);
-	}
+            return new ImportExportClipboardDialog(f, type);
+        } else {
+            return new ImportExportFileDialog(f, type);
+        }
     }
 }

@@ -1,4 +1,4 @@
-# Circuit Simulator.
+# circsim.Circuit Simulator.
 
 To simulate a circuit
 
